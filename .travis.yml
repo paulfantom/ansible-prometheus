@@ -16,8 +16,7 @@ install:
 
 jobs:
   include:
-    - stage: test
-      script: molecule test
+    - script: molecule test
     - stage: lint
       script: ansible-lint tests/playbook.yml
     - stage: deploy
