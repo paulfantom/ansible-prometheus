@@ -1,29 +1,28 @@
 sudo: required
 language: python
+cache: pip
 services:
   - docker
+env:
+  - ANSIBLE='ansible>=2.3.0,<2.4.0' PROMETHEUS=1.8.2
+  - ANSIBLE='ansible>=2.3.0,<2.4.0' PROMETHEUS=2.2.1
+  - ANSIBLE='ansible>=2.4.0,<2.5.0' PROMETHEUS=1.8.2
+  - ANSIBLE='ansible>=2.4.0,<2.5.0' PROMETHEUS=2.2.1
+  - ANSIBLE='ansible>=2.5.0,<2.6.0' PROMETHEUS=1.8.2
+  - ANSIBLE='ansible>=2.5.0,<2.6.0' PROMETHEUS=2.2.1
+matrix:
+  fast_finish: true
+install:
+  - pip install ${ANSIBLE} 'ansible-lint>=3.4.15' 'molecule==1.25.0' docker git-semver 'testinfra>=1.7.0,<=1.10.1' jmespath
 
 jobs:
   include:
-    - stage: lint
-      script: 
-        - pip install 'ansible-lint>=3.4.15'
-        - ansible-lint tests/playbook.yml
     - stage: test
-      script: 
-        - pip install ${ANSIBLE} 'ansible-lint>=3.4.15' 'molecule==1.25.0' docker 'testinfra>=1.7.0,<=1.10.1' jmespath
-        - molecule test
-      env:
-        - ANSIBLE='ansible>=2.3.0,<2.4.0' PROMETHEUS=1.8.2
-        - ANSIBLE='ansible>=2.3.0,<2.4.0' PROMETHEUS=2.2.1
-        - ANSIBLE='ansible>=2.4.0,<2.5.0' PROMETHEUS=1.8.2
-        - ANSIBLE='ansible>=2.4.0,<2.5.0' PROMETHEUS=2.2.1
-        - ANSIBLE='ansible>=2.5.0,<2.6.0' PROMETHEUS=1.8.2
-        - ANSIBLE='ansible>=2.5.0,<2.6.0' PROMETHEUS=2.2.1
+      script: molecule test
+    - stage: lint
+      script: ansible-lint tests/playbook.yml
     - stage: deploy
-      script: 
-        - pip install docker git-semver
-        - .travis/auto.sh
+      script: .travis/auto.sh
 
 stages:
   - lint
